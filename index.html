@@ -489,6 +489,71 @@
   }
   .role-selector-wrap label { font-size: 12px; font-weight: 700; color: var(--text-mid); white-space: nowrap; }
 
+  /* ===== 加工メモ・加工履歴 ===== */
+  .process-timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 4px;
+  }
+  .process-timeline::before {
+    content: '';
+    position: absolute; left: 7px; top: 6px; bottom: 6px;
+    width: 2px; background: var(--border);
+  }
+  .process-step {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .process-step:last-child { margin-bottom: 0; }
+  .process-dot {
+    position: absolute; left: -17px; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--border);
+  }
+  .dot-c1 { background: var(--c1); box-shadow: 0 0 0 2px var(--c1); }
+  .dot-c2 { background: var(--c2); box-shadow: 0 0 0 2px var(--c2); }
+  .dot-c3 { background: var(--c3); box-shadow: 0 0 0 2px var(--c3); }
+  .dot-pending { background: #ccc; box-shadow: 0 0 0 2px #ccc; }
+  .process-step-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px;
+  }
+  .process-step-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  }
+  .process-step-date {
+    font-size: 10px; color: var(--text-light);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .process-memo {
+    font-size: 12px; color: var(--text-mid);
+    background: var(--bg-main);
+    border-radius: 5px;
+    padding: 7px 10px;
+    border-left: 3px solid var(--border);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .process-memo.memo-c1 { border-left-color: var(--c1); }
+  .process-memo.memo-c2 { border-left-color: var(--c2); }
+  .process-memo.memo-c3 { border-left-color: var(--c3); }
+  .process-pending {
+    font-size: 12px; color: var(--text-light);
+    font-style: italic;
+    padding: 4px 0;
+  }
+  .memo-section-title {
+    font-size: 11px; font-weight: 700; color: var(--text-mid);
+    letter-spacing: 0.04em; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .memo-section-title::before {
+    content: ''; display: block;
+    width: 3px; height: 13px;
+    background: var(--gold); border-radius: 2px;
+  }
+
   /* ===== RESPONSIVE ===== */
   @media (max-width: 900px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -515,7 +580,7 @@
       </div>
     </div>
     <div class="header-user">
-      <span id="user-label">管理者</span>
+      <span id="user-label">管理者（サイバー安全保障担当）</span>
       <span class="badge-role role-admin" id="role-badge">ADMIN</span>
     </div>
   </div>
@@ -647,6 +712,17 @@
             <textarea id="f-countermeasure" rows="2" placeholder="推奨する対策・緩和策"></textarea>
           </div>
 
+          <!-- 加工メモ -->
+          <div class="form-group full">
+            <label>✂️ 加工メモ
+              <span style="font-weight:400;color:var(--text-light);font-size:11px;margin-left:6px;">
+                （何を削除・言い換えしてこの種別にしたか。IPAでの加工判断の根拠として記録）
+              </span>
+            </label>
+            <textarea id="f-memo-c1" rows="2" placeholder="【総合→提供用への加工】例：選別後通信情報（傍受由来のIPアドレスログ）を除外。攻撃者識別情報を「国家支援型グループ」に抽象化。"></textarea>
+            <textarea id="f-memo-c2" rows="2" placeholder="【提供用→周知等用への加工】例：具体的なIOC（ドメイン・ハッシュ値）を削除。「特定設備に影響」→「重要インフラ全般への注意喚起」に変更。" style="margin-top:6px;"></textarea>
+          </div>
+
           <!-- 種別分類 -->
           <div class="form-group full">
             <label>情報種別の分類<span class="required">*</span>
@@ -688,7 +764,7 @@
     <div class="role-selector-wrap">
       <label>🔑 閲覧権限シミュレーション：</label>
       <select onchange="changeViewRole(this.value)" id="view-role-select">
-        <option value="admin">管理者（内閣府）— 全種別閲覧可</option>
+        <option value="admin">管理者 — 全種別閲覧可</option>
         <option value="provide">提供担当者 — 提供用・周知等用のみ</option>
         <option value="public">外部事業者 — 周知等用のみ</option>
       </select>
@@ -912,6 +988,8 @@ const sampleData = [
     summary: '国家を背景とするサイバー攻撃グループが、電力制御システムを標的としたスピアフィッシングキャンペーンを実施。複数の特別社会基盤事業者で不審な通信を検知。侵害の痕跡（IOC）および攻撃戦術・技術・手順（TTP）を整理。',
     ioc: '*.evil-infra[.]ru, 185.220.101.x, SHA256: a1b2c3d4e5f6... (CVE-2025-1234)',
     countermeasure: 'VPN機器の脆弱性パッチ適用、エンドポイント検知強化、SOCアラートルール更新',
+    memoC1: '選別後通信情報（傍受した通信パケットの送受信元IPログ全件）を除外。\n同盟国共有情報に含まれる攻撃グループの実名・組織名を「国家支援型グループA」に抽象化。\n侵害確認済み電力事業者名を「特別社会基盤事業者（電力分野）複数社」に変更。',
+    memoC2: '提供用から残存していた攻撃インフラの詳細ドメインリスト（185.220.101.x 全レンジ）を削除。\nCVE番号はそのまま残存（公開情報のため）。\n「〇〇省の制御システムに影響」→「電力・エネルギー分野の重要インフラ全般への注意喚起」に変更。\n経営層向けに「攻撃の背景・目的」の記述を追加。',
     category: 'c1',
     registered: '2025-11-16'
   },
@@ -926,6 +1004,8 @@ const sampleData = [
     summary: '国内複数の金融機関においてLockBitの亜種とされるランサムウェアへの感染が確認された。攻撃者は VPN脆弱性を経由して侵入し、横展開後にデータを暗号化。業務継続に影響が生じている。',
     ioc: 'CVE-2024-3400, 192.168.x.x (C2: ransomware-c2[.]onion)',
     countermeasure: 'オフラインバックアップの確認、VPN即時パッチ適用、ネットワーク分離の検討',
+    memoC1: '特別社会基盤事業者（金融2社）の社名・被害金額・業務停止時間の具体値を除外。\n通信情報由来のC2サーバー通信ログ詳細を削除。\nランサムウェアのオペレーター名（公知情報）はそのまま記載。',
+    memoC2: '',
     category: 'c2',
     registered: '2025-11-21'
   },
@@ -940,6 +1020,8 @@ const sampleData = [
     summary: '近時、標的型メールによるフィッシング攻撃が増加傾向にあります。添付ファイルの開封やリンクのクリックに十分ご注意ください。不審なメールを受信した場合は、所管省庁・情報処理推進機構（IPA）へご連絡ください。',
     ioc: '（省略）',
     countermeasure: 'メールフィルタリングの強化、従業員へのセキュリティ教育の実施',
+    memoC1: '元の総合整理分析情報から通信傍受情報・機密情報をすべて除外済み。\n提供用では攻撃者に関する情報を「不特定の攻撃グループ」と記載。',
+    memoC2: '具体的なフィッシングURL・送信元メールアドレスを削除（特定の組織が標的であることが推測されるため）。\n「IPAへ報告を」という行動喚起メッセージを追加。一般向けの平易な文体に変更。',
     category: 'c3',
     registered: '2025-11-26'
   }
@@ -998,6 +1080,8 @@ function submitForm() {
     summary,
     ioc: document.getElementById('f-ioc').value.trim() || '—',
     countermeasure: document.getElementById('f-countermeasure').value.trim() || '—',
+    memoC1: document.getElementById('f-memo-c1').value.trim() || '',
+    memoC2: document.getElementById('f-memo-c2').value.trim() || '',
     category: selectedCategory,
     registered: today
   });
@@ -1008,7 +1092,7 @@ function submitForm() {
 }
 
 function resetForm() {
-  ['f-title','f-source','f-sector','f-summary','f-ioc','f-countermeasure'].forEach(id => {
+  ['f-title','f-source','f-sector','f-summary','f-ioc','f-countermeasure','f-memo-c1','f-memo-c2'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('f-threat').value = '';
@@ -1159,6 +1243,51 @@ function openDetail(id) {
     <div class="detail-row"><div class="detail-key">概要・詳細</div><div class="detail-val" style="white-space:pre-wrap;">${r.summary}</div></div>
     <div class="detail-row"><div class="detail-key">IOC</div><div class="detail-val" style="font-family:'IBM Plex Mono',monospace;font-size:12px;">${r.ioc}</div></div>
     <div class="detail-row"><div class="detail-key">推奨対策</div><div class="detail-val">${r.countermeasure}</div></div>
+    <div class="detail-row" style="flex-direction:column;gap:10px;">
+      <div class="detail-key" style="flex:none;">
+        <div class="memo-section-title">✂️ 加工履歴（情報種別ダウングレードの記録）</div>
+      </div>
+      <div class="detail-val" style="flex:none;">
+        <div class="process-timeline">
+          <div class="process-step">
+            <div class="process-dot dot-c1"></div>
+            <div class="process-step-header">
+              <span class="badge badge-c1">🔵 総合整理分析情報</span>
+              <span class="process-step-date">（原本）</span>
+            </div>
+            ${r.memoC1
+              ? `<div class="process-memo memo-c1">▼ 提供用への加工内容：\n${r.memoC1}</div>`
+              : (r.category === 'c1'
+                  ? '<div class="process-pending">※ この情報は総合整理分析情報として管理中。加工未実施。</div>'
+                  : '<div class="process-memo memo-c1" style="color:var(--text-light);">（加工メモ未記入）</div>')}
+          </div>
+          <div class="process-step">
+            <div class="process-dot ${r.category==='c1' ? 'dot-pending' : 'dot-c2'}"></div>
+            <div class="process-step-header">
+              <span class="badge ${r.category==='c1' ? '' : 'badge-c2'}" style="${r.category==='c1' ? 'background:#eee;color:#999;border:1px solid #ddd;' : ''}">🟢 提供用総合整理分析情報</span>
+              ${r.category==='c1' ? '<span class="process-step-date">未加工</span>' : ''}
+            </div>
+            ${r.category === 'c1'
+              ? '<div class="process-pending">⏳ 提供用への加工が必要です。</div>'
+              : (r.memoC2
+                  ? `<div class="process-memo memo-c2">▼ 周知等用への加工内容：\n${r.memoC2}</div>`
+                  : (r.category === 'c2'
+                      ? '<div class="process-pending">※ この情報は提供用として管理中。周知等用への加工未実施。</div>'
+                      : '<div class="process-memo memo-c2" style="color:var(--text-light);">（加工メモ未記入）</div>'))}
+          </div>
+          <div class="process-step">
+            <div class="process-dot ${r.category==='c3' ? 'dot-c3' : 'dot-pending'}"></div>
+            <div class="process-step-header">
+              <span class="badge ${r.category==='c3' ? 'badge-c3' : ''}" style="${r.category!=='c3' ? 'background:#eee;color:#999;border:1px solid #ddd;' : ''}">🟣 周知等用総合整理分析情報</span>
+              ${r.category!=='c3' ? '<span class="process-step-date">未加工</span>' : '<span class="process-step-date">（公開可能版）</span>'}
+            </div>
+            ${r.category !== 'c3'
+              ? '<div class="process-pending">⏳ 周知等用への加工が必要です。</div>'
+              : '<div class="process-pending" style="color:var(--c3);font-style:normal;">✅ 秘密なし。広く事業者・一般への周知・提供が可能な状態です。</div>'}
+          </div>
+        </div>
+      </div>
+    </div>
   `;
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -1186,7 +1315,7 @@ function changeViewRole(role) {
   const roleBadge = document.getElementById('role-badge');
   if (role==='admin') {
     badge.className = 'badge-role role-admin badge'; badge.textContent = 'ADMIN';
-    userLabel.textContent = '管理者 (内閣府サイバー安全保障担当)';
+    userLabel.textContent = '管理者（サイバー安全保障担当）';
     roleBadge.className = 'badge-role role-admin'; roleBadge.textContent = 'ADMIN';
   } else if (role==='provide') {
     badge.className = 'badge-role role-provide badge'; badge.textContent = 'PROVIDE';
